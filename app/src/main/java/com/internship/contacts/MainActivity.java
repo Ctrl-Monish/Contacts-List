@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -33,11 +35,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         recyclerView = findViewById(R.id.recycler_view);
         divider = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         checkPermission();
-        
     }
 
     @Override
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                         ContactsContract.Contacts._ID
                 ));
                 String name = cursor.getString(cursor.getColumnIndex(
-                        ContactsContract.Contacts.DISPLAY_NAME
+                        ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
                 ));
 
                 Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
@@ -92,22 +92,25 @@ public class MainActivity extends AppCompatActivity {
                 Cursor phoneCursor = getContentResolver().query(
                         uriPhone, null, selection, new  String[]{id}, null
                 );
-                if(phoneCursor.moveToNext()){
-                    String number = phoneCursor.getString(phoneCursor.getColumnIndex(
-                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                ArrayList<String> numbers= new ArrayList<>();
+                while(phoneCursor.moveToNext()){
+                    numbers.add(phoneCursor.getString(phoneCursor.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER)
                     ));
-
-                    ContactModel model = new ContactModel();
-                    model.setName(name);
-                    model.setNumber(number);
-                    arrayList.add(model);
-                    phoneCursor.close();
                 }
+                ContactModel model = new ContactModel();
+                model.setName(name);
+                model.setNumber(numbers.get(0));
+                if(numbers.size()>2){
+                    model.setSecondNumber(numbers.get(1));
+                }else model.setSecondNumber("");
+                arrayList.add(model);
+                phoneCursor.close();
             }
             cursor.close();
         }
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        contactsadapter = new ContactsAdapter(this, arrayList);
+        contactsadapter = new ContactsAdapter(this, arrayList, getApplicationContext());
         recyclerView.setAdapter(contactsadapter);
         recyclerView.addItemDecoration(divider);
     }

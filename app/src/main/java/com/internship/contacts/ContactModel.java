@@ -1,7 +1,9 @@
 package com.internship.contacts;
 
 public class ContactModel {
-    String name, number;
+    String name;
+    String number;
+    String secondNumber;
 
     public String getName() {
         return name;
@@ -18,5 +20,14 @@ public class ContactModel {
     public void setNumber(String number) {
         this.number = number;
     }
+
+    public String getSecondNumber() {
+        return secondNumber;
+    }
+
+    public void setSecondNumber(String secondNumber) {
+        this.secondNumber = secondNumber;
+    }
+
 }
 
